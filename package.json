@@ -1,0 +1,48 @@
+{
+  "name": "sqs-large-messages",
+  "version": "0.1.0",
+  "description": "if message going to sqs is larger then 256kb, send to s3",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "jest test",
+    "test:watch": "jest --coverage --watchAll",
+    "test:coverage": "yarn jest --coverage",
+    "build": "tsc",
+    "prepare": "npm run build",
+    "build:watch": "onchange '/**/*.ts' -- yarn build",
+    "view:coverage": "serve .coverage/lcov-report",
+    "clean": "rm -rf .coverage /**/*.js src/**/*.map"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://git.rockfin.com/ql-notification-services/sqs-large-messages.git"
+  },
+  "files": [
+    "lib",
+    "package.json",
+    "README.md"
+  ],
+  "publishConfig": {
+    "registry": "https://artifactory.foc.zone/artifactory/api/npm/npm-public-virtual/"
+  },
+  "author": "Cavanaugh, Michael",
+  "license": "ISC",
+  "dependencies": {
+    "aws-sdk": "^2.893.0",
+    "inversify": "^5.1.1",
+    "nanoid": "^3.1.22",
+    "reflect-metadata": "^0.1.13",
+    "source-map-support": "^0.5.19",
+    "tslib": "^2.2.0"
+  },
+  "devDependencies": {
+    "@old-republic/npm-version-audit": "^1.0.30",
+    "@old-republic/sonar-check-nodejs": "^1.0.8",
+    "@types/jest": "^26.0.23",
+    "@types/node": "^15.0.0",
+    "aws-lambda": "^1.0.6",
+    "sonarqube-scanner": "^2.8.0",
+    "ts-jest": "^26.5.5",
+    "typescript": "^4.2.4"
+  }
+}

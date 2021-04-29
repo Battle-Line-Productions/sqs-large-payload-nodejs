@@ -23,9 +23,6 @@
     "package.json",
     "README.md"
   ],
-  "publishConfig": {
-    "registry": "https://artifactory.foc.zone/artifactory/api/npm/npm-public-virtual/"
-  },
   "author": "Cavanaugh, Michael",
   "license": "ISC",
   "dependencies": {

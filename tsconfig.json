@@ -32,6 +32,6 @@
       "forceConsistentCasingInFileNames": false /* Disallow inconsistently-cased references to the same file. */
     },
     "include": ["./**/*.ts"],
-    "exclude": ["node_modules/**/*", ".serverless/**/*", ".webpack/**/*", "_warmup/**/*", ".vscode/**/*", "./**/*.spec.ts", "./**/*.test.ts"]
+    "exclude": ["node_modules/**/*", ".serverless/**/*", ".webpack/**/*", "_warmup/**/*", ".vscode/**/*", "./**/*.spec.ts", "./**/*.test.ts", "lib/**/*"]
   }
   

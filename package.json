@@ -1,6 +1,6 @@
 {
   "name": "@battle-line-productions/sqs-large-payload-nodejs",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "if message going to sqs is larger then 256kb, send to s3",
   "main": "src/index.js",
   "scripts": {

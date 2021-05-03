@@ -17,11 +17,10 @@ module.exports = {
         diagnostics: false
       }
     },
-    globalSetup: './global-setup.js',
     coverageReporters: ['json', 'lcov', 'text', 'clover', 'html'],
     coverageDirectory: '.coverage',
     clearMocks: true,
-    collectCoverageFrom: ['**/src/**/*.ts'],
+    collectCoverageFrom: ['src/**/*.ts', '!src/**/*.d.ts'],
     coveragePathIgnorePatterns: ['/node_modules/'],
     testEnvironment: 'node',
     testPathIgnorePatterns: ['<rootDir>/node_modules/'],

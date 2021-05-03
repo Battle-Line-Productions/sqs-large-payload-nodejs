@@ -7,20 +7,20 @@ import { ISqsLargePayloadService, ISqsServiceOptions, SqsServiceMessageSize } fr
 @injectable()
 export class SqsLargePayloadService implements ISqsLargePayloadService {
   private region: string;
-  private queueName?: string;
-  private maxMessageSize?: number;
   private s3EndpointUrl: string;
   private s3Bucket: string;
+  private queueName?: string;
+  private maxMessageSize?: number;
   private sqsEndpoint?: string;
   private s3Client?: S3;
   private sqsClient?: SQS;
 
   constructor(options: ISqsServiceOptions) {
     this.region = options.region;
-    this.queueName = options.queueName;
-    this.maxMessageSize = options.maxMessageSize;
     this.s3EndpointUrl = options.s3EndpointUrl;
     this.s3Bucket = options.s3BucketName;
+    this.queueName = options.queueName;
+    this.maxMessageSize = options.maxMessageSize;
     this.sqsEndpoint = options.sqsEndpoint;
     this.s3Client = options.s3Client;
     this.sqsClient = options.sqsClient;
@@ -31,7 +31,7 @@ export class SqsLargePayloadService implements ISqsLargePayloadService {
       return this.sqsClient;
     }
 
-    const sqsConfig = {
+    const sqsConfig: SQS.ClientConfiguration = {
       region: this.region,
       endpoint: this.sqsEndpoint
     };
@@ -48,7 +48,7 @@ export class SqsLargePayloadService implements ISqsLargePayloadService {
       return this.s3Client;
     }
 
-    const s3Config = {
+    const s3Config: S3.ClientConfiguration = {
       s3ForcePathStyle: true,
       signatureVersion: 'v2',
       region: this.region,
@@ -58,8 +58,12 @@ export class SqsLargePayloadService implements ISqsLargePayloadService {
     return new S3(s3Config);
   }
 
-  public async getQueueUrl(queueName?: string): Promise<string> {
+  public async GetQueueUrl(queueName?: string): Promise<string> {
     const name = queueName ? queueName : this.queueName ? this.queueName : '';
+
+    if (name === '') {
+      throw new Error(`Missing Queue Name`);
+    }
 
     const { QueueUrl } = await this.getInstanceSqs().getQueueUrl({ QueueName: name }).promise();
 
@@ -70,10 +74,10 @@ export class SqsLargePayloadService implements ISqsLargePayloadService {
     return QueueUrl;
   }
 
-  public async SendMessage<T>(body: T, queueName?: string): Promise<any> {
+  public async SendMessage<T>(body: T, queueName?: string): Promise<SQS.SendMessageResult> {
     const messageString = JSON.stringify({ message: body });
     const msgSize = Buffer.byteLength(messageString, 'utf-8');
-    const queueUrl = await this.getQueueUrl(queueName);
+    const queueUrl = await this.GetQueueUrl(queueName);
 
     const messageSize = this.maxMessageSize || SqsServiceMessageSize.MAX_SQS_MESSAGE_SIZE;
 
@@ -83,7 +87,7 @@ export class SqsLargePayloadService implements ISqsLargePayloadService {
         MessageBody: messageString
       };
 
-      return this.getInstanceSqs().sendMessage(messageConfig).promise();
+      return await this.getInstanceSqs().sendMessage(messageConfig).promise();
     }
 
     const keyId = nanoid();
@@ -108,7 +112,7 @@ export class SqsLargePayloadService implements ISqsLargePayloadService {
       })
     };
 
-    return this.getInstanceSqs().sendMessage(messageConfig).promise();
+    return await this.getInstanceSqs().sendMessage(messageConfig).promise();
   }
 
   public async ProcessReceivedMessage(messageBody: string): Promise<string> {

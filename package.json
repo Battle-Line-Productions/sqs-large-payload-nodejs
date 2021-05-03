@@ -4,15 +4,9 @@
   "description": "if message going to sqs is larger then 256kb, send to s3",
   "main": "src/index.js",
   "scripts": {
-    "test": "jest test",
-    "test:watch": "jest --coverage --watchAll",
-    "test:coverage": "npm run jest --coverage",
+    "test": "jest test --coverage",
     "build": "tsc",
-    "prepare": "npm run build",
-    "build:watch": "onchange '/**/*.ts' -- yarn build",
-    "view:coverage": "serve .coverage/lcov-report",
-    "clean": "rm -rf .coverage /**/*.js src/**/*.map",
-    "pub": "npm publish --access public"
+    "prepare": "npm run build"
   },
   "repository": {
     "type": "git",

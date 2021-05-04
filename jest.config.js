@@ -20,7 +20,7 @@ module.exports = {
     coverageReporters: ['json', 'lcov', 'text', 'clover', 'html'],
     coverageDirectory: '.coverage',
     clearMocks: true,
-    collectCoverageFrom: ['src/**/*.ts', '!src/**/*.d.ts'],
+    collectCoverageFrom: ['src/**/*.ts', '!src/**/*.d.ts', "!src/**/index.ts"],
     coveragePathIgnorePatterns: ['/node_modules/'],
     testEnvironment: 'node',
     testPathIgnorePatterns: ['<rootDir>/node_modules/'],

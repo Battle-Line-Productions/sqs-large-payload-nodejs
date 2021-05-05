@@ -1,20 +1,37 @@
 {
   "name": "@battleline/sqs-large-payload-nodejs",
-  "version": "0.2.2",
-  "description": "if message going to sqs is larger then 256kb, send to s3",
+  "version": "0.2.3",
+  "description": "if a message going to sqs is larger then 256kb, send to s3",
   "main": "src/index.js",
   "types": "src/index.d.ts",
+  "homepage": "https://github.com/Battle-Line-Productions/sqs-large-payload-nodejs/blob/main/README.md",
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=10"
+  },
+  "bugs": {
+    "url": "https://github.com/Battle-Line-Productions/sqs-large-payload-nodejs/issues"
+  },
   "scripts": {
     "test": "jest test --coverage",
     "build": "tsc",
     "prepare": "npm run build"
   },
+  "keywords": [
+    "sqs",
+    "large",
+    "messages",
+    "s3",
+    "aws"
+  ],
   "repository": {
     "type": "git",
     "url": "https://git.rockfin.com/ql-notification-services/sqs-large-messages.git"
   },
   "files": [
-    "lib/**/*",
+    "dist/**/*",
     "package.json",
     "README.md",
     "yarn.lock"
@@ -22,7 +39,6 @@
   "author": "Cavanaugh, Michael",
   "license": "ISC",
   "dependencies": {
-    "aws-sdk": "^2.893.0",
     "inversify": "^5.1.1",
     "nanoid": "^3.1.22",
     "reflect-metadata": "^0.1.13",
@@ -35,5 +51,8 @@
     "aws-lambda": "^1.0.6",
     "ts-jest": "^26.5.5",
     "typescript": "^4.2.4"
+  },
+  "peerDependencies": {
+    "aws-sdk": "^2.893.0"
   }
 }

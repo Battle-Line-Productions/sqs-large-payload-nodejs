@@ -1,9 +1,9 @@
 {
   "name": "@battleline/sqs-large-payload-nodejs",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "if a message going to sqs is larger then 256kb, send to s3",
-  "main": "src/index.js",
-  "types": "src/index.d.ts",
+  "main": "index.js",
+  "types": "index.d.ts",
   "homepage": "https://github.com/Battle-Line-Productions/sqs-large-payload-nodejs/blob/main/README.md",
   "publishConfig": {
     "access": "public"

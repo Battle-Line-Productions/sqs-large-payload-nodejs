@@ -7,21 +7,17 @@ import { ISqsLargePayloadService, ISqsServiceOptions, SqsServiceMessageSize } fr
 @injectable()
 export class SqsLargePayloadService implements ISqsLargePayloadService {
   private region: string;
-  private s3EndpointUrl: string;
   private s3Bucket: string;
   private queueName?: string;
   private maxMessageSize?: number;
-  private sqsEndpoint?: string;
   private s3Client?: S3;
   private sqsClient?: SQS;
 
   constructor(options: ISqsServiceOptions) {
     this.region = options.region;
-    this.s3EndpointUrl = options.s3EndpointUrl;
     this.s3Bucket = options.s3BucketName;
     this.queueName = options.queueName;
     this.maxMessageSize = options.maxMessageSize;
-    this.sqsEndpoint = options.sqsEndpoint;
     this.s3Client = options.s3Client;
     this.sqsClient = options.sqsClient;
   }
@@ -32,13 +28,8 @@ export class SqsLargePayloadService implements ISqsLargePayloadService {
     }
 
     const sqsConfig: SQS.ClientConfiguration = {
-      region: this.region,
-      endpoint: this.sqsEndpoint
+      region: this.region
     };
-
-    if (!this.sqsEndpoint) {
-      delete sqsConfig.endpoint;
-    }
 
     return new SQS(sqsConfig);
   }
@@ -50,9 +41,7 @@ export class SqsLargePayloadService implements ISqsLargePayloadService {
 
     const s3Config: S3.ClientConfiguration = {
       s3ForcePathStyle: true,
-      signatureVersion: 'v2',
-      region: this.region,
-      endpoint: this.s3EndpointUrl
+      region: this.region
     };
 
     return new S3(s3Config);

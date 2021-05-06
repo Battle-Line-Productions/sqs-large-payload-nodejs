@@ -86,13 +86,18 @@ export class SqsLargePayloadService implements ISqsLargePayloadService {
     const keyId = nanoid();
     const payloadId = `${keyId}.json`;
 
+    console.log(`Writing message to bucket ${this.s3Bucket}`);
     const responseBucket = await this.getInstanceS3()
       .upload({
         Bucket: this.s3Bucket,
         Body: messageString,
         Key: payloadId
       })
-      .promise();
+      .promise()
+      .catch((err) => {
+        console.log(`S3 Threw the following error: ${err}`);
+        throw new Error(err);
+      });
 
     const messageConfig = {
       QueueUrl: queueUrl,

@@ -108,7 +108,7 @@ export class SqsLargePayloadService implements ISqsLargePayloadService {
     return await this.getInstanceSqs().sendMessage(messageConfig).promise();
   }
 
-  public async ProcessReceivedMessage<T>(messageBody: string): Promise<T> {
+  public async ProcessReceivedMessage(messageBody: string): Promise<string> {
     if (JSON.parse(messageBody).S3Payload) {
       const s3Object = await this.getInstanceS3()
         .getObject({
@@ -121,9 +121,9 @@ export class SqsLargePayloadService implements ISqsLargePayloadService {
         throw new Error(`Message has a S3 Payload but no File found matching payload name in S3 Bucket`);
       }
 
-      return s3Object.Body as T;
+      return s3Object.Body.toString();
     }
 
-    return JSON.parse(messageBody) as T;
+    return messageBody;
   }
 }

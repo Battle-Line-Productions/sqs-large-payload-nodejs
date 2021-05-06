@@ -60,6 +60,8 @@ export class SqsLargePayloadService implements ISqsLargePayloadService {
       throw new Error(`Unable to determine Queue url from provided name of ${queueName}`);
     }
 
+    console.log(`The QueueUrl is ${QueueUrl}`);
+
     return QueueUrl;
   }
 

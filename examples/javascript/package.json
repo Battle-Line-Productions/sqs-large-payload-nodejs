@@ -9,7 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@battleline/sqs-large-payload-nodejs": "^0.2.7",
+    "@battleline/sqs-large-payload-nodejs": "^0.2.8",
     "aws-sdk": "^2.901.0"
   }
 }

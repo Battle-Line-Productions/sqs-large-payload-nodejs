@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@battleline/sqs-large-payload-nodejs@^0.2.7":
-  version "0.2.7"
-  resolved "https://registry.yarnpkg.com/@battleline/sqs-large-payload-nodejs/-/sqs-large-payload-nodejs-0.2.7.tgz#30cbb69f1226e4c6822dd23f2dc12bf3e0cbbd4e"
-  integrity sha512-41IAiI2LsCavhcmiOTrTvfr6qe2CaecVQpK9BANr+HLLfj1t7ulyt+8zC14+6a8Fe+rY9MG6lhaUfODAKblR/Q==
+"@battleline/sqs-large-payload-nodejs@^0.2.8":
+  version "0.2.8"
+  resolved "https://registry.yarnpkg.com/@battleline/sqs-large-payload-nodejs/-/sqs-large-payload-nodejs-0.2.8.tgz#807d64dc98b00f34ff58405c0456c794c9266995"
+  integrity sha512-wHVAqEsWwGssfMET4d/ByQS9B/WdKTL7QTgXOhgPTJla6v+c28sVw9V5hW1WrALRhyo1XaPKEw0UEcPNUurEyQ==
   dependencies:
     inversify "^5.1.1"
     nanoid "^3.1.22"

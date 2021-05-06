@@ -8,3 +8,5 @@ const sqsOptions = {
 };
 
 const sqs = new SQS(sqsOptions);
+
+await sqs.sendMessage('some message', 'queueName');

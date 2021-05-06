@@ -50,6 +50,8 @@ export class SqsLargePayloadService implements ISqsLargePayloadService {
   public async GetQueueUrl(queueName?: string): Promise<string> {
     const name = queueName ? queueName : this.queueName ? this.queueName : '';
 
+    console.log(`The queue name is ${name}`);
+
     if (name === '') {
       throw new Error(`Missing Queue Name`);
     }

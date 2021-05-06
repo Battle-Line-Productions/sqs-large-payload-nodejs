@@ -1,5 +1,7 @@
 # sqs-large-payload-nodejs
 
+[![Coverage Status](https://coveralls.io/repos/github/Battle-Line-Productions/sqs-large-payload-nodejs/badge.svg?branch=main)](https://coveralls.io/github/Battle-Line-Productions/sqs-large-payload-nodejs?branch=main)
+
 When sending messages to amazon SQS that are larger then 256KB it is rejected due to hard amazon limits on SQS. Amazon provided a solution for this in their JAVA SDK by uploading messages larger in size to an S3 bucket but provided no solution for their Javascript SDK.
 
 While their are some npm packages out there already that help with this issue, none of them work with AWS Lambda or any event driven architecture that has already aquired the message from the queue.

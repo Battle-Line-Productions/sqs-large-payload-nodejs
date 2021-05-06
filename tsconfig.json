@@ -1,22 +1,21 @@
 {
     "compilerOptions": {
-      "target": "es2020" /* Specify ECMAScript target version: 'ES3' (default), 'ES5', 'ES2015', 'ES2016', 'ES2017', 'ES2018', 'ES2019' or 'ESNEXT'. */,
+      "target": "ESNEXT" /* Specify ECMAScript target version: 'ES3' (default), 'ES5', 'ES2015', 'ES2016', 'ES2017', 'ES2018', 'ES2019' or 'ESNEXT'. */,
       "lib": ["es2015", "es2016", "es2017", "es2018", "es2019", "es2020", "esnext.asynciterable"],
       "module": "commonjs" /* Specify module code generation: 'none', 'commonjs', 'amd', 'system', 'umd', 'es2015', or 'ESNext'. */,
-      "skipLibCheck": true,
+      "outDir": "./dist",
       "allowJs": true /* Allow javascript files to be compiled. */,
       "declaration": true /* Generates corresponding '.d.ts' file. */,
       "declarationMap": true /* Generates a sourcemap for each corresponding '.d.ts' file. */,
       "sourceMap": true /* Generates corresponding '.map' file. */,
-      "rootDir": "." /* Specify the root directory of input files. Use to control the output directory structure with --outDir. */,
       "importHelpers": true /* Import emit helpers from 'tslib'. */,
       "strict": true /* Enable all strict type-checking options. */,
-      "noImplicitAny": false /* Raise error on expressions and declarations with an implied 'any' type. */,
+      "noImplicitAny": true /* Raise error on expressions and declarations with an implied 'any' type. */,
       "strictNullChecks": true /* Enable strict null checks. */,
       "strictFunctionTypes": true /* Enable strict checking of function types. */,
       "strictBindCallApply": true /* Enable strict 'bind', 'call', and 'apply' methods on functions. */,
       "strictPropertyInitialization": true /* Enable strict checking of property initialization in classes. */,
-      "noImplicitThis": false /* Raise error on 'this' expressions with an implied 'any' type. */,
+      "noImplicitThis": true /* Raise error on 'this' expressions with an implied 'any' type. */,
       "alwaysStrict": true /* Parse in strict mode and emit "use strict" for each source file. */,
       "noUnusedLocals": true /* Report errors on unused locals. */,
       "noUnusedParameters": true /* Report errors on unused parameters. */,
@@ -31,7 +30,6 @@
       "resolveJsonModule": true /* Enables experimental support for ES7 decorators. */,
       "forceConsistentCasingInFileNames": false /* Disallow inconsistently-cased references to the same file. */
     },
-    "include": ["."],
-    "exclude": ["node_modules/**/*", ".vscode/**/*", "./**/*.spec.ts", "./**/*.test.ts", "dist/**/*", "examples/**/*", ".github", "jest.config.js"]
+    "exclude": ["examples", "dist", ".coverage", ".github", "node_modules", "tests", "jest.config.js"]
   }
   

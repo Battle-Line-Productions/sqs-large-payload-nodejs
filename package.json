@@ -1,6 +1,6 @@
 {
   "name": "@battleline/sqs-large-payload-nodejs",
-  "version": "0.2.8",
+  "version": "0.2.9",
   "description": "if a message going to sqs is larger then 256kb, send to s3",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

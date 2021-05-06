@@ -87,12 +87,11 @@ export class SqsLargePayloadService implements ISqsLargePayloadService {
     const payloadId = `${keyId}.json`;
 
     console.log(`Writing message to bucket ${this.s3Bucket}`);
-    const responseBucket = await this.getInstanceS3()
-      .upload({
+    await this.getInstanceS3()
+      .putObject({
         Bucket: this.s3Bucket,
         Body: messageString,
-        Key: payloadId,
-        ACL: 'private'
+        Key: payloadId
       })
       .promise()
       .catch((err) => {
@@ -104,9 +103,7 @@ export class SqsLargePayloadService implements ISqsLargePayloadService {
       QueueUrl: queueUrl,
       MessageBody: JSON.stringify({
         S3Payload: {
-          Id: payloadId,
-          Key: responseBucket.Key,
-          Location: responseBucket.Location
+          Key: payloadId,
         }
       })
     };

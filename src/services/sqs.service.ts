@@ -124,6 +124,8 @@ export class SqsLargePayloadService implements ISqsLargePayloadService {
         throw new Error(`Message has a S3 Payload but no File found matching payload name in S3 Bucket`);
       }
 
+      await this.getInstanceS3().deleteObject({ Bucket: this.s3Bucket, Key: JSON.parse(messageBody).S3Payload.Key });
+
       return s3Object.Body.toString();
     }
 

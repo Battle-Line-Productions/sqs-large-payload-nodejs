@@ -4,6 +4,7 @@
       "lib": ["es2015", "es2016", "es2017", "es2018", "es2019", "es2020", "esnext.asynciterable"],
       "module": "commonjs" /* Specify module code generation: 'none', 'commonjs', 'amd', 'system', 'umd', 'es2015', or 'ESNext'. */,
       "outDir": "./dist",
+      "rootDir": "src",
       "allowJs": true /* Allow javascript files to be compiled. */,
       "declaration": true /* Generates corresponding '.d.ts' file. */,
       "declarationMap": true /* Generates a sourcemap for each corresponding '.d.ts' file. */,
@@ -30,6 +31,7 @@
       "resolveJsonModule": true /* Enables experimental support for ES7 decorators. */,
       "forceConsistentCasingInFileNames": false /* Disallow inconsistently-cased references to the same file. */
     },
+    "include": ["src/**/*"],
     "exclude": ["examples", "dist", ".coverage", ".github", "node_modules", "tests", "jest.config.js"]
   }
   

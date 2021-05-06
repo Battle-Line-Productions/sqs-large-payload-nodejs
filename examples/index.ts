@@ -1,5 +1,5 @@
 // build example
-import { SqsLargePayloadService, ISqsServiceOptions, ISqsLargePayloadService } from '@battleline/sqs-large-payload-nodejs/src';
+import { SqsLargePayloadService, ISqsServiceOptions, ISqsLargePayloadService } from '@battleline/sqs-large-payload-nodejs';
 
 const sqsOptions: ISqsServiceOptions = {
     s3EndpointUrl: 'string',

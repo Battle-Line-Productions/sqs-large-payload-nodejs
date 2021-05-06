@@ -91,7 +91,8 @@ export class SqsLargePayloadService implements ISqsLargePayloadService {
       .upload({
         Bucket: this.s3Bucket,
         Body: messageString,
-        Key: payloadId
+        Key: payloadId,
+        ACL: 'private'
       })
       .promise()
       .catch((err) => {

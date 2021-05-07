@@ -23,8 +23,10 @@
     "sqs",
     "large",
     "messages",
+    "payload",
     "s3",
-    "aws"
+    "aws",
+    "lambda"
   ],
   "repository": {
     "type": "git",

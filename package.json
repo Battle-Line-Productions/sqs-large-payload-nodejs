@@ -28,7 +28,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://git.rockfin.com/ql-notification-services/sqs-large-messages.git"
+    "url": "https://github.com/Battle-Line-Productions/sqs-large-payload-nodejs.git"
   },
   "files": [
     "dist/**/*",

@@ -5,7 +5,7 @@ import { nanoid } from 'nanoid';
 
 
 describe('src/services/sqs.service.ts', () => {
-    let mockUrl: string, mockGetQueueUrlMethod, sut: ISqsLargePayloadService, serviceOptions: ISqsServiceOptions, mockSendMessageMethod, mockS3UploadMethod, s3BucketResponse;
+    let mockUrl: string, mockGetQueueUrlMethod, sut: ISqsLargePayloadService, serviceOptions: ISqsServiceOptions, mockSendMessageMethod, mockS3PutObjectMethod, s3BucketResponse;
 
     beforeEach(() => {
         jest.clearAllMocks();
@@ -30,11 +30,11 @@ describe('src/services/sqs.service.ts', () => {
             Location: '/'
         };
 
-        mockS3UploadMethod = jest.fn().mockReturnValue({ promise: jest.fn().mockResolvedValue(s3BucketResponse) });
+        mockS3PutObjectMethod = jest.fn().mockReturnValue({ promise: jest.fn().mockResolvedValue(s3BucketResponse) });
 
         AWS.S3 = jest.fn().mockImplementation(() => {
             return {
-                upload: mockS3UploadMethod
+                putObject: mockS3PutObjectMethod
             };
         });
 
@@ -45,7 +45,7 @@ describe('src/services/sqs.service.ts', () => {
         serviceOptions = {
             region: 'us-east-2',
             s3BucketName: 'testBucket',
-            s3EndpointUrl: 'https://s3.url.com'
+            s3DeleteAfterLoad: false
         };
 
         sut = new SqsLargePayloadService(serviceOptions);
@@ -122,9 +122,9 @@ describe('src/services/sqs.service.ts', () => {
                 serviceOptions = {
                     region: 'us-east-2',
                     s3BucketName: 'testBucket',
-                    s3EndpointUrl: 'https://s3.url.com',
                     queueName: 'name',
-                    maxMessageSize: 1
+                    maxMessageSize: 1,
+                    s3DeleteAfterLoad: false
                 };
 
                 sut = new SqsLargePayloadService(serviceOptions);
@@ -139,17 +139,15 @@ describe('src/services/sqs.service.ts', () => {
                     QueueUrl: 'https://queueurl.aws.com',
                     MessageBody: JSON.stringify({
                         S3Payload: {
-                            Id: '123456789.json',
-                            Key: '123456789.json',
-                            Location: '/'
+                            Key: '123456789.json'
                         }
                     })
                 };
 
                 await sut.SendMessage('MockStringBody');
 
-                expect(mockS3UploadMethod).toHaveBeenCalledTimes(1);
-                expect(mockS3UploadMethod).toHaveBeenCalledWith(s3Expected)
+                expect(mockS3PutObjectMethod).toHaveBeenCalledTimes(1);
+                expect(mockS3PutObjectMethod).toHaveBeenCalledWith(s3Expected)
                 expect(mockSendMessageMethod).toHaveBeenCalledTimes(1);
                 expect(mockSendMessageMethod).toHaveBeenCalledWith(sqsExpected);
             });

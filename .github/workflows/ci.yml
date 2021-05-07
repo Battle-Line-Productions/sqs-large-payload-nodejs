@@ -16,10 +16,10 @@ jobs:
       with:
         node-version: 12.x
 
-    - name: npm install, make test-coverage
+    - name: yarn install, jest test --coverage
       run: |
-        npm install
-        npm run test
+        yarn install
+        yarn test
 
     - name: Coveralls
       uses: coverallsapp/github-action@master

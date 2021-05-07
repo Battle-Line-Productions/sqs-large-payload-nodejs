@@ -12,6 +12,7 @@ export class SqsLargePayloadService implements ISqsLargePayloadService {
   private maxMessageSize?: number;
   private s3Client?: S3;
   private sqsClient?: SQS;
+  private s3DeleteAfterLoad: boolean;
 
   constructor(options: ISqsServiceOptions) {
     this.region = options.region;
@@ -20,6 +21,7 @@ export class SqsLargePayloadService implements ISqsLargePayloadService {
     this.maxMessageSize = options.maxMessageSize;
     this.s3Client = options.s3Client;
     this.sqsClient = options.sqsClient;
+    this.s3DeleteAfterLoad = options.s3DeleteAfterLoad;
   }
 
   private getInstanceSqs(): SQS {
@@ -124,7 +126,9 @@ export class SqsLargePayloadService implements ISqsLargePayloadService {
         throw new Error(`Message has a S3 Payload but no File found matching payload name in S3 Bucket`);
       }
 
-      await this.getInstanceS3().deleteObject({ Bucket: this.s3Bucket, Key: JSON.parse(messageBody).S3Payload.Key });
+      if (this.s3DeleteAfterLoad) {
+        await this.getInstanceS3().deleteObject({ Bucket: this.s3Bucket, Key: JSON.parse(messageBody).S3Payload.Key });
+      }
 
       return s3Object.Body.toString();
     }

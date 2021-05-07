@@ -6,5 +6,6 @@ export interface ISqsServiceOptions {
     queueName?: string,
     region: string,
     s3Client?: S3,
-    sqsClient?: SQS
+    sqsClient?: SQS,
+    s3DeleteAfterLoad: boolean
 }

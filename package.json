@@ -42,7 +42,7 @@
   "license": "ISC",
   "dependencies": {
     "inversify": "^5.1.1",
-    "nanoid": "^3.1.22",
+    "nanoid": "^3.1.31",
     "reflect-metadata": "^0.1.13",
     "source-map-support": "^0.5.19",
     "tslib": "^2.2.0"

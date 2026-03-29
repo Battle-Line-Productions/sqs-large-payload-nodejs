@@ -26,7 +26,6 @@ coverage
 .nyc_output
 .coverage
 /lib*
-src
 
 # Grunt intermediate storage (https://gruntjs.com/creating-plugins#storing-task-files)
 .grunt

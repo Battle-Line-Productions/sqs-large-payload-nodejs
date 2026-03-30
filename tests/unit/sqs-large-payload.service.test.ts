@@ -1,8 +1,8 @@
 import { DeleteObjectCommand, GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 import { GetQueueUrlCommand, SendMessageBatchCommand, SendMessageCommand } from "@aws-sdk/client-sqs";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { SqsLargePayloadService } from "../../src/sqs-large-payload.service.js";
 import { MissingQueueError, QueueUrlResolutionError, S3PayloadError } from "../../src/errors.js";
+import { SqsLargePayloadService } from "../../src/sqs-large-payload.service.js";
 import { DEFAULT_MAX_MESSAGE_SIZE } from "../../src/types.js";
 import type { SqsServiceOptions } from "../../src/types.js";
 
@@ -35,8 +35,8 @@ function createService(overrides?: Partial<SqsServiceOptions>) {
   const sqsSend = vi.fn();
   const s3Send = vi.fn();
 
-  const sqsClient = { send: sqsSend } as any;
-  const s3Client = { send: s3Send } as any;
+  const sqsClient = { send: sqsSend } as unknown as SqsServiceOptions["sqsClient"];
+  const s3Client = { send: s3Send } as unknown as SqsServiceOptions["s3Client"];
 
   const options: SqsServiceOptions = {
     region: "us-east-2",

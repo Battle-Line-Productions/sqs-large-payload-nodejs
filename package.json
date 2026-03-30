@@ -37,26 +37,12 @@
     "lint:fix": "biome check --write .",
     "prepare": "npm run build"
   },
-  "keywords": [
-    "sqs",
-    "large",
-    "messages",
-    "payload",
-    "s3",
-    "aws",
-    "lambda",
-    "aws-sdk-v3"
-  ],
+  "keywords": ["sqs", "large", "messages", "payload", "s3", "aws", "lambda", "aws-sdk-v3"],
   "repository": {
     "type": "git",
     "url": "https://github.com/Battle-Line-Productions/sqs-large-payload-nodejs.git"
   },
-  "files": [
-    "dist/**/*",
-    "package.json",
-    "README.md",
-    "CHANGELOG.md"
-  ],
+  "files": ["dist/**/*", "package.json", "README.md", "CHANGELOG.md"],
   "author": "Cavanaugh, Michael",
   "license": "ISC",
   "peerDependencies": {

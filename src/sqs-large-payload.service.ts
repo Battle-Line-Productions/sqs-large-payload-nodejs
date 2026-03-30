@@ -1,13 +1,13 @@
-import { DeleteObjectCommand, GetObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
-import {
-  GetQueueUrlCommand,
-  SQSClient,
-  SendMessageBatchCommand,
-  SendMessageCommand,
-} from "@aws-sdk/client-sqs";
 import { randomUUID } from "node:crypto";
-import { S3PayloadError, MissingQueueError, QueueUrlResolutionError } from "./errors.js";
-import type { SendMessageBatchEntry, SendMessageBatchResultEntry, SendMessageOutput, SqsServiceOptions } from "./types.js";
+import { DeleteObjectCommand, GetObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { GetQueueUrlCommand, SQSClient, SendMessageBatchCommand, SendMessageCommand } from "@aws-sdk/client-sqs";
+import { MissingQueueError, QueueUrlResolutionError, S3PayloadError } from "./errors.js";
+import type {
+  SendMessageBatchEntry,
+  SendMessageBatchResultEntry,
+  SendMessageOutput,
+  SqsServiceOptions,
+} from "./types.js";
 import { DEFAULT_MAX_MESSAGE_SIZE } from "./types.js";
 
 export class SqsLargePayloadService {
@@ -115,14 +115,12 @@ export class SqsLargePayloadService {
       }),
     );
 
-    const result = await this.sqsClient.send(
-      new SendMessageBatchCommand({ QueueUrl: queueUrl, Entries: sqsEntries }),
-    );
+    const result = await this.sqsClient.send(new SendMessageBatchCommand({ QueueUrl: queueUrl, Entries: sqsEntries }));
 
     return (result.Successful ?? []).map((s) => ({
-      id: s.Id!,
+      id: s.Id ?? "",
       messageId: s.MessageId,
-      s3Key: s3Keys.get(s.Id!),
+      s3Key: s3Keys.get(s.Id ?? ""),
     }));
   }
 
@@ -139,9 +137,7 @@ export class SqsLargePayloadService {
 
     const key: string = parsed.S3Payload.Key;
 
-    const s3Object = await this.s3Client.send(
-      new GetObjectCommand({ Bucket: this.s3Bucket, Key: key }),
-    );
+    const s3Object = await this.s3Client.send(new GetObjectCommand({ Bucket: this.s3Bucket, Key: key }));
 
     if (!s3Object.Body) {
       throw new S3PayloadError("Message has an S3Payload reference but no object was found in the bucket");
@@ -158,9 +154,7 @@ export class SqsLargePayloadService {
 
   private async uploadToS3(key: string, body: string): Promise<void> {
     try {
-      await this.s3Client.send(
-        new PutObjectCommand({ Bucket: this.s3Bucket, Body: body, Key: key }),
-      );
+      await this.s3Client.send(new PutObjectCommand({ Bucket: this.s3Bucket, Body: body, Key: key }));
     } catch (err) {
       throw new S3PayloadError(`Failed to upload payload to S3: ${err}`, { cause: err });
     }

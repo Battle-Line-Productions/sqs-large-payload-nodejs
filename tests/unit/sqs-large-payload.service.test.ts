@@ -1,7 +1,7 @@
 import { DeleteObjectCommand, GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 import { GetQueueUrlCommand, SendMessageBatchCommand, SendMessageCommand } from "@aws-sdk/client-sqs";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { MissingQueueError, QueueUrlResolutionError, S3PayloadError } from "../../src/errors.js";
+import { BatchValidationError, MissingQueueError, QueueUrlResolutionError, S3PayloadError } from "../../src/errors.js";
 import { SqsLargePayloadService } from "../../src/sqs-large-payload.service.js";
 import { DEFAULT_MAX_MESSAGE_SIZE } from "../../src/types.js";
 import type { SqsServiceOptions } from "../../src/types.js";
@@ -170,8 +170,9 @@ describe("SqsLargePayloadService", () => {
         { id: "b", body: "world" },
       ]);
 
-      expect(result).toHaveLength(2);
-      expect(result[0]).toEqual({ id: "a", messageId: "msg-a", s3Key: undefined });
+      expect(result.successful).toHaveLength(2);
+      expect(result.failed).toHaveLength(0);
+      expect(result.successful[0]).toEqual({ id: "a", messageId: "msg-a", s3Key: undefined });
       expect(sqsSend).toHaveBeenCalledWith(expect.any(SendMessageBatchCommand));
     });
 
@@ -190,7 +191,38 @@ describe("SqsLargePayloadService", () => {
       const result = await service.sendMessageBatch([{ id: "a", body: "big" }]);
 
       expect(s3Send).toHaveBeenCalled();
-      expect(result[0].s3Key).toBeDefined();
+      expect(result.successful[0].s3Key).toBeDefined();
+    });
+
+    it("throws BatchValidationError when more than 10 entries", async () => {
+      const { service } = createService({ queueUrl: "https://q.url" });
+
+      const entries = Array.from({ length: 11 }, (_, i) => ({ id: `${i}`, body: "x" }));
+
+      await expect(service.sendMessageBatch(entries)).rejects.toThrow(BatchValidationError);
+    });
+
+    it("returns failed entries from the SQS response", async () => {
+      const { service, sqsSend } = createService({ queueUrl: "https://q.url" });
+
+      sqsSend.mockResolvedValueOnce({
+        Successful: [{ Id: "a", MessageId: "msg-a" }],
+        Failed: [{ Id: "b", Code: "InternalError", Message: "Something went wrong", SenderFault: false }],
+      });
+
+      const result = await service.sendMessageBatch([
+        { id: "a", body: "hello" },
+        { id: "b", body: "world" },
+      ]);
+
+      expect(result.successful).toHaveLength(1);
+      expect(result.failed).toHaveLength(1);
+      expect(result.failed[0]).toEqual({
+        id: "b",
+        code: "InternalError",
+        message: "Something went wrong",
+        senderFault: false,
+      });
     });
   });
 

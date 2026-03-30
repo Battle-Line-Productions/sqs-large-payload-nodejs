@@ -46,3 +46,15 @@ export interface SendMessageBatchResultEntry {
   messageId: string | undefined;
   s3Key?: string;
 }
+
+export interface SendMessageBatchFailedEntry {
+  id: string;
+  code: string;
+  message: string;
+  senderFault: boolean;
+}
+
+export interface SendMessageBatchOutput {
+  successful: SendMessageBatchResultEntry[];
+  failed: SendMessageBatchFailedEntry[];
+}

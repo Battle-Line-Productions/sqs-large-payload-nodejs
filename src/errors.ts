@@ -19,6 +19,13 @@ export class QueueUrlResolutionError extends SqsLargePayloadError {
   }
 }
 
+export class BatchValidationError extends SqsLargePayloadError {
+  constructor(message: string) {
+    super(message);
+    this.name = "BatchValidationError";
+  }
+}
+
 export class S3PayloadError extends SqsLargePayloadError {
   constructor(message: string, options?: ErrorOptions) {
     super(message, options);

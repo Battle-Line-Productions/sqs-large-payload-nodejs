@@ -1,13 +1,8 @@
 import { randomUUID } from "node:crypto";
 import { DeleteObjectCommand, GetObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { GetQueueUrlCommand, SQSClient, SendMessageBatchCommand, SendMessageCommand } from "@aws-sdk/client-sqs";
-import { MissingQueueError, QueueUrlResolutionError, S3PayloadError } from "./errors.js";
-import type {
-  SendMessageBatchEntry,
-  SendMessageBatchResultEntry,
-  SendMessageOutput,
-  SqsServiceOptions,
-} from "./types.js";
+import { BatchValidationError, MissingQueueError, QueueUrlResolutionError, S3PayloadError } from "./errors.js";
+import type { SendMessageBatchEntry, SendMessageBatchOutput, SendMessageOutput, SqsServiceOptions } from "./types.js";
 import { DEFAULT_MAX_MESSAGE_SIZE } from "./types.js";
 
 export class SqsLargePayloadService {
@@ -64,7 +59,7 @@ export class SqsLargePayloadService {
     const msgSize = Buffer.byteLength(messageString, "utf-8");
     const queueUrl = await this.getQueueUrl(queueNameOrUrl);
 
-    if (msgSize < this.maxMessageSize) {
+    if (msgSize <= this.maxMessageSize) {
       const result = await this.sqsClient.send(
         new SendMessageCommand({ QueueUrl: queueUrl, MessageBody: messageString }),
       );
@@ -86,12 +81,16 @@ export class SqsLargePayloadService {
 
   /**
    * Send up to 10 messages in a batch. Each entry that exceeds the size limit is
-   * individually offloaded to S3.
+   * individually offloaded to S3. Returns both successful and failed entries.
    */
   async sendMessageBatch<T>(
     entries: SendMessageBatchEntry<T>[],
     queueNameOrUrl?: string,
-  ): Promise<SendMessageBatchResultEntry[]> {
+  ): Promise<SendMessageBatchOutput> {
+    if (entries.length > 10) {
+      throw new BatchValidationError(`Batch size ${entries.length} exceeds the SQS maximum of 10 entries`);
+    }
+
     const queueUrl = await this.getQueueUrl(queueNameOrUrl);
     const s3Keys = new Map<string, string>();
 
@@ -100,7 +99,7 @@ export class SqsLargePayloadService {
         const messageString = JSON.stringify({ message: entry.body });
         const msgSize = Buffer.byteLength(messageString, "utf-8");
 
-        if (msgSize < this.maxMessageSize) {
+        if (msgSize <= this.maxMessageSize) {
           return { Id: entry.id, MessageBody: messageString };
         }
 
@@ -117,11 +116,20 @@ export class SqsLargePayloadService {
 
     const result = await this.sqsClient.send(new SendMessageBatchCommand({ QueueUrl: queueUrl, Entries: sqsEntries }));
 
-    return (result.Successful ?? []).map((s) => ({
+    const successful = (result.Successful ?? []).map((s) => ({
       id: s.Id ?? "",
       messageId: s.MessageId,
       s3Key: s3Keys.get(s.Id ?? ""),
     }));
+
+    const failed = (result.Failed ?? []).map((f) => ({
+      id: f.Id ?? "",
+      code: f.Code ?? "Unknown",
+      message: f.Message ?? "",
+      senderFault: f.SenderFault ?? false,
+    }));
+
+    return { successful, failed };
   }
 
   /**

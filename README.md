@@ -1,92 +1,96 @@
 # sqs-large-payload-nodejs
 
-[![Coverage Status](https://coveralls.io/repos/github/Battle-Line-Productions/sqs-large-payload-nodejs/badge.svg?branch=main)](https://coveralls.io/github/Battle-Line-Productions/sqs-large-payload-nodejs?branch=main)
+[![CI](https://github.com/Battle-Line-Productions/sqs-large-payload-nodejs/actions/workflows/ci.yml/badge.svg)](https://github.com/Battle-Line-Productions/sqs-large-payload-nodejs/actions/workflows/ci.yml)
 
-When sending messages to amazon SQS that are larger then 256KB it is rejected due to hard amazon limits on SQS. Amazon provided a solution for this in their JAVA SDK by uploading messages larger in size to an S3 bucket but provided no solution for their Javascript SDK.
+Transparently offload large SQS messages to S3 when they exceed the size limit. Built for AWS SDK v3.
 
-While their are some npm packages out there already that help with this issue, none of them work with AWS Lambda or any event driven architecture that has already aquired the message from the queue.
-
-This package works by exposing the processing logic for that message seperately and simply returns to you the message that was sent to either the SQS queue initially or to the S3 bucket based on its size.
+SQS has a maximum message size of **1 MiB**. This library automatically uploads messages larger than that threshold to S3, and sends a lightweight reference through SQS instead. On the receiving side, it detects the reference and fetches the original payload from S3.
 
 ## Installation
-    - npm install @battleline/sqs-large-payload-nodejs
-    or
-    - yarn add @battleline/sqs-large-payload-nodejs
 
-## Usage
-
-This library is super simple and exports a sqs.service that has two primary functions exposed.
-
-- SendMessage - Accepts a object of any type or string message and a optional queue name. 
-- ProcessReceivedMessage - Takes in the SQS message body and will either return the message to you or get a message from S3 and return the S3 body to you.
-
-
-### IAM Permissions
-
-**S3 Permissions**
-
-- s3:putObject
-- s3:getObject
-- s3:deleteObject - Required only if you choose true on s3DeleteAfterLoad option
-
-**SQS Permissions**
-
-- sqs:GetQueueUrl
-- sqs:SendMessage
-
-### Setup
-
-```javascript
-import AWS from 'aws-sdk';
-const sqsHandler = require('@battleline/sqs-large-payload-nodejs');
-
-const options = {
-    s3BucketName: 'nameOfBucketHere',
-    region: 'us-east-2', // or any other region here
-    s3DeleteAfterLoad: false,  // If true, will delete the item from s3 after download. Does not return to s3 if message fails to process
-    maxMessageSize: 262144,  // 256Kb by default. Can be set lower then this but now higher due to SQS hard limitation
-    queueName: 'queueName', // Can optionally set it here or when calling send message
-    sqsClient: new AWS.SQS(),  // optionally you can pass in your own SQS Client or we will create one when needed
-    s3Client: new AWS.S3() // optionally you can apss in your own s3 client or we will create one when needed
-};
-
-
-const sqs = new sqsHandler.SqsLargePayloadService(options);
-
+```bash
+npm install @battleline/sqs-large-payload-nodejs @aws-sdk/client-sqs @aws-sdk/client-s3
 ```
 
-### Send Message
+> **Note:** `@aws-sdk/client-sqs` and `@aws-sdk/client-s3` are **peer dependencies** — you bring your own SDK v3 clients.
 
-```javascript
+## Quick Start
 
-const objectThingy = {
-    someKey: 'someValue'
-};
+```typescript
+import { SqsLargePayloadService } from "@battleline/sqs-large-payload-nodejs";
 
-await sqs.SendMessage(objectThingy);
+const sqs = new SqsLargePayloadService({
+  region: "us-east-2",
+  s3BucketName: "my-payload-bucket",
+  queueUrl: "https://sqs.us-east-2.amazonaws.com/123456789/my-queue",
+});
 
-// or
-await sqs.SendMessage("we can take strings also");
+// Send a message (automatically offloads to S3 if > 1 MiB)
+const result = await sqs.sendMessage({ key: "value" });
+console.log(result.messageId);
 
-//or
-await sqs.SendMessage("object or string here", "queueName will override from options");
-
+// Process a received message (transparently fetches from S3 if needed)
+const body = await sqs.processReceivedMessage(event.Records[0].body);
 ```
 
-### ProcessReceivedMessage
+## API
 
-```javascript
+### `new SqsLargePayloadService(options)`
 
-// received stringified message from lambda event
+| Option              | Type       | Required | Default | Description |
+|---------------------|------------|----------|---------|-------------|
+| `region`            | `string`   | Yes      |         | AWS region |
+| `s3BucketName`      | `string`   | Yes      |         | S3 bucket for large payloads |
+| `queueUrl`          | `string`   | No       |         | SQS queue URL (preferred over `queueName`) |
+| `queueName`         | `string`   | No       |         | SQS queue name (resolved via `GetQueueUrl`) |
+| `maxMessageSize`    | `number`   | No       | 1 MiB   | Byte threshold for S3 offload |
+| `s3DeleteAfterLoad` | `boolean`  | No       | `false` | Delete S3 object after retrieval |
+| `sqsClient`         | `SQSClient`| No       |         | Bring your own SQS client |
+| `s3Client`          | `S3Client` | No       |         | Bring your own S3 client |
 
-const event = {
-    Records: [
-        {
-            Body: "{ message: 'some message here' }"
-        }
-    ]
-};
+### `sendMessage<T>(body: T, queueNameOrUrl?: string): Promise<SendMessageOutput>`
 
-const expectedResultFromQeueu = await sqs.ProcessReceivedMessage(event.Records[0].Body).message;
+Serializes `body` to JSON and sends it to SQS. If the serialized size exceeds `maxMessageSize`, the payload is uploaded to S3 first and a reference is sent through SQS.
 
+### `sendMessageBatch<T>(entries: SendMessageBatchEntry<T>[], queueNameOrUrl?: string): Promise<SendMessageBatchResultEntry[]>`
+
+Send up to 10 messages in a single batch. Each entry that exceeds the threshold is individually offloaded to S3.
+
+### `processReceivedMessage(messageBody: string): Promise<string>`
+
+Pass in the raw SQS message body. If it contains an `S3Payload` reference, the original payload is fetched from S3 (and optionally deleted). Otherwise the message is returned as-is.
+
+### `getQueueUrl(queueNameOrUrl?: string): Promise<string>`
+
+Resolve a queue name to a URL, or pass through a URL directly.
+
+## IAM Permissions
+
+**S3:** `s3:PutObject`, `s3:GetObject`, `s3:DeleteObject` (only if `s3DeleteAfterLoad: true`)
+
+**SQS:** `sqs:GetQueueUrl`, `sqs:SendMessage`, `sqs:SendMessageBatch`
+
+## Error Handling
+
+The library throws typed errors:
+
+- `MissingQueueError` — no queue name or URL was provided
+- `QueueUrlResolutionError` — `GetQueueUrl` returned no result
+- `S3PayloadError` — S3 upload or download failed
+- `SqsLargePayloadError` — base class for all errors above
+
+```typescript
+import { S3PayloadError } from "@battleline/sqs-large-payload-nodejs";
+
+try {
+  await sqs.sendMessage(hugePayload);
+} catch (err) {
+  if (err instanceof S3PayloadError) {
+    console.error("S3 issue:", err.cause);
+  }
+}
 ```
+
+## Migrating from v1
+
+See [CHANGELOG.md](./CHANGELOG.md) for the full migration guide.
